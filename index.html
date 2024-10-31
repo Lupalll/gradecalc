@@ -134,6 +134,16 @@
             totalPercentage += percentageValue;
         });
 
+        // Wenn die Summe der Prozentsätze nicht 100% beträgt, gleiche sie aus
+        if (totalPercentage !== 100) {
+            const adjustment = (100 - totalPercentage) / grades.length;
+            percentages.forEach((percentageInput) => {
+                let currentValue = parseFloat(percentageInput.value) || 0;
+                percentageInput.value = Math.max(0, currentValue + adjustment).toFixed(2); // Stelle sicher, dass die Werte nicht negativ werden
+            });
+            totalPercentage = 100; // Setze die neue Summe auf 100
+        }
+
         const average = totalPercentage > 0 ? (totalWeightedScore / (totalPercentage / 100)).toFixed(2) : 0;
         document.getElementById('average').innerText = average;
         document.getElementById('finalGrade').innerText = Math.round(average * 10) / 10;
