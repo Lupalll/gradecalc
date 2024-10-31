@@ -50,7 +50,7 @@
             margin-right: 5%;
             width: 45%;
         }
-        .add-grade, .export-grades, .reset-grade {
+        .add-grade, .reset-grade, .delete-grade {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
@@ -61,7 +61,17 @@
         }
         .add-grade { background-color: #6c5ce7; }
         .reset-grade { background-color: #ff7675; }
-        .export-grades { background-color: #00cec9; }
+        .delete-grade { background-color: #ff9f43; width: auto; font-size: 14px; }
+        .export-grades {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            background-color: #00cec9;
+            font-size: 14px;
+        }
         .average, .final-grade {
             text-align: center;
             font-size: 18px;
@@ -100,8 +110,8 @@
     </div>
     
     <button class="add-grade" onclick="addGrade()">+ Note hinzufügen</button>
-    <button class="export-grades" onclick="exportGrades()">Exportieren</button>
     <button class="reset-grade" onclick="resetGrades()">Zurücksetzen</button>
+    <button class="delete-grade" onclick="deleteLastGrade()">Letzte Note löschen</button>
     
     <div class="average">
         Durchschnitt: <span id="average">0</span>
@@ -110,6 +120,8 @@
         Gesamtnote: <span id="finalGrade">0</span>
     </div>
     <div id="warning" class="warning"></div>
+    
+    <button class="export-grades" onclick="exportGrades()">Exportieren</button>
 </div>
 
 <script>
@@ -151,6 +163,14 @@
         `;
         gradeList.appendChild(gradeRow);
         calculateAverage();
+    }
+
+    function deleteLastGrade() {
+        const gradeList = document.getElementById('grade-list');
+        if (gradeList.children.length > 1) {
+            gradeList.removeChild(gradeList.lastChild);
+            calculateAverage();
+        }
     }
 
     function resetGrades() {
