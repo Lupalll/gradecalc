@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moderner Notenrechner</title>
+    <title>Erweiterter Notenrechner</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
             background-color: #f4f4f9;
         }
         .container {
-            width: 350px;
+            width: 400px;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -45,27 +45,29 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
-        }
-        .add-grade, .remove-grade {
-            background-color: #6c5ce7;
-            color: #fff;
             margin-top: 10px;
             width: 100%;
         }
-        .remove-grade {
-            background-color: #ff7675;
-        }
-        .average {
-            margin-top: 15px;
-            font-size: 18px;
+        .add-grade { background-color: #6c5ce7; color: #fff; }
+        .remove-grade { background-color: #ff7675; color: #fff; }
+        .reset-grade { background-color: #2d3436; color: #fff; }
+        .average, .total-percentage, .final-grade {
+            margin-top: 10px;
+            font-size: 16px;
             text-align: center;
+        }
+        .warning {
+            color: #e17055;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Notenrechner</h2>
+    <h2>Erweiterter Notenrechner</h2>
     <div id="grade-list">
         <div class="grade-row">
             <input type="number" step="0.1" min="1" max="6" placeholder="Note" class="grade-input">
@@ -74,9 +76,18 @@
     </div>
     <button class="add-grade" onclick="addGrade()">+ Note hinzufügen</button>
     <button class="remove-grade" onclick="removeGrade()">- Letzte Note entfernen</button>
-    <div class="average">
-        Durchschnitt: <span id="average">0</span>
+    <button class="reset-grade" onclick="resetGrades()">Alle Eingaben zurücksetzen</button>
+    
+    <div class="total-percentage">
+        Gesamte Prozentzahl: <span id="totalPercentage">0</span>%
     </div>
+    <div class="average">
+        Durchschnitt (gewichteter): <span id="average">0</span>
+    </div>
+    <div class="final-grade">
+        Gesamtnote: <span id="finalGrade">0</span>
+    </div>
+    <div id="warning" class="warning"></div>
 </div>
 
 <script>
@@ -85,19 +96,33 @@
         const percentages = document.querySelectorAll('.percentage-input');
         let totalWeightedScore = 0;
         let totalPercentage = 0;
-
+        let validInputs = true;
+        
         grades.forEach((grade, index) => {
             const gradeValue = parseFloat(grade.value);
             const percentageValue = parseFloat(percentages[index].value) || 0;
             
-            if (!isNaN(gradeValue) && gradeValue >= 1 && gradeValue <= 6) {
-                totalWeightedScore += gradeValue * (percentageValue / 100);
-                totalPercentage += percentageValue;
+            if (isNaN(gradeValue) || gradeValue < 1 || gradeValue > 6 || percentageValue < 0 || percentageValue > 100) {
+                validInputs = false;
             }
+
+            totalWeightedScore += gradeValue * (percentageValue / 100);
+            totalPercentage += percentageValue;
         });
 
-        const average = totalPercentage > 0 ? (totalWeightedScore / (totalPercentage / 100)).toFixed(2) : 0;
-        document.getElementById('average').innerText = average;
+        document.getElementById('totalPercentage').innerText = totalPercentage;
+
+        if (validInputs && totalPercentage <= 100) {
+            const average = totalPercentage > 0 ? (totalWeightedScore / (totalPercentage / 100)).toFixed(2) : 0;
+            document.getElementById('average').innerText = average;
+
+            const finalGrade = Math.round(average * 10) / 10;
+            document.getElementById('finalGrade').innerText = finalGrade;
+
+            document.getElementById('warning').innerText = totalPercentage === 100 ? "" : "Gesamte Prozentzahl muss 100% sein!";
+        } else {
+            document.getElementById('warning').innerText = "Ungültige Eingabe! Prüfe die Noten und Prozentsätze.";
+        }
     }
 
     function addGrade() {
@@ -118,6 +143,17 @@
             gradeList.removeChild(gradeList.lastChild);
             calculateAverage();
         }
+    }
+
+    function resetGrades() {
+        const gradeList = document.getElementById('grade-list');
+        gradeList.innerHTML = `
+            <div class="grade-row">
+                <input type="number" step="0.1" min="1" max="6" placeholder="Note" class="grade-input" oninput="calculateAverage()">
+                <input type="number" step="1" min="0" max="100" placeholder="%" class="percentage-input" oninput="calculateAverage()">
+            </div>
+        `;
+        calculateAverage();
     }
 
     document.querySelectorAll('.grade-input, .percentage-input').forEach(input => {
