@@ -15,7 +15,7 @@
             background-color: #f4f4f9;
         }
         .container {
-            width: 300px;
+            width: 350px;
             background: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -30,12 +30,15 @@
             align-items: center;
             margin-bottom: 10px;
         }
-        input[type="number"] {
-            width: 100%;
+        .grade-row input[type="number"] {
+            width: 45%;
             padding: 8px;
-            margin-right: 8px;
+            margin-right: 5%;
             border: 1px solid #ddd;
             border-radius: 4px;
+        }
+        .grade-row .percentage-input {
+            width: 45%;
         }
         button {
             padding: 8px;
@@ -65,24 +68,35 @@
     <h2>Notenrechner</h2>
     <div id="grade-list">
         <div class="grade-row">
-            <input type="number" value="100" min="0" max="100" class="grade-input"> %
+            <input type="number" step="0.1" min="1" max="6" placeholder="Note" class="grade-input">
+            <input type="number" step="1" min="0" max="100" placeholder="%" class="percentage-input">
         </div>
     </div>
     <button class="add-grade" onclick="addGrade()">+ Note hinzufügen</button>
     <button class="remove-grade" onclick="removeGrade()">- Letzte Note entfernen</button>
     <div class="average">
-        Durchschnitt: <span id="average">100</span> %
+        Durchschnitt: <span id="average">0</span>
     </div>
 </div>
 
 <script>
     function calculateAverage() {
         const grades = document.querySelectorAll('.grade-input');
-        let total = 0;
-        grades.forEach(grade => {
-            total += parseFloat(grade.value) || 0;
+        const percentages = document.querySelectorAll('.percentage-input');
+        let totalWeightedScore = 0;
+        let totalPercentage = 0;
+
+        grades.forEach((grade, index) => {
+            const gradeValue = parseFloat(grade.value);
+            const percentageValue = parseFloat(percentages[index].value) || 0;
+            
+            if (!isNaN(gradeValue) && gradeValue >= 1 && gradeValue <= 6) {
+                totalWeightedScore += gradeValue * (percentageValue / 100);
+                totalPercentage += percentageValue;
+            }
         });
-        const average = grades.length ? (total / grades.length).toFixed(2) : 0;
+
+        const average = totalPercentage > 0 ? (totalWeightedScore / (totalPercentage / 100)).toFixed(2) : 0;
         document.getElementById('average').innerText = average;
     }
 
@@ -91,7 +105,8 @@
         const gradeRow = document.createElement('div');
         gradeRow.classList.add('grade-row');
         gradeRow.innerHTML = `
-            <input type="number" value="100" min="0" max="100" class="grade-input" oninput="calculateAverage()"> %
+            <input type="number" step="0.1" min="1" max="6" placeholder="Note" class="grade-input" oninput="calculateAverage()">
+            <input type="number" step="1" min="0" max="100" placeholder="%" class="percentage-input" oninput="calculateAverage()">
         `;
         gradeList.appendChild(gradeRow);
         calculateAverage();
@@ -105,7 +120,7 @@
         }
     }
 
-    document.querySelectorAll('.grade-input').forEach(input => {
+    document.querySelectorAll('.grade-input, .percentage-input').forEach(input => {
         input.addEventListener('input', calculateAverage);
     });
 </script>
