@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderner Notenrechner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            width: 300px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .grade-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-right: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-grade, .remove-grade {
+            background-color: #6c5ce7;
+            color: #fff;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .remove-grade {
+            background-color: #ff7675;
+        }
+        .average {
+            margin-top: 15px;
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Notenrechner</h2>
+    <div id="grade-list">
+        <div class="grade-row">
+            <input type="number" value="100" min="0" max="100" class="grade-input"> %
+        </div>
+    </div>
+    <button class="add-grade" onclick="addGrade()">+ Note hinzufügen</button>
+    <button class="remove-grade" onclick="removeGrade()">- Letzte Note entfernen</button>
+    <div class="average">
+        Durchschnitt: <span id="average">100</span> %
+    </div>
+</div>
+
+<script>
+    function calculateAverage() {
+        const grades = document.querySelectorAll('.grade-input');
+        let total = 0;
+        grades.forEach(grade => {
+            total += parseFloat(grade.value) || 0;
+        });
+        const average = grades.length ? (total / grades.length).toFixed(2) : 0;
+        document.getElementById('average').innerText = average;
+    }
+
+    function addGrade() {
+        const gradeList = document.getElementById('grade-list');
+        const gradeRow = document.createElement('div');
+        gradeRow.classList.add('grade-row');
+        gradeRow.innerHTML = `
+            <input type="number" value="100" min="0" max="100" class="grade-input" oninput="calculateAverage()"> %
+        `;
+        gradeList.appendChild(gradeRow);
+        calculateAverage();
+    }
+
+    function removeGrade() {
+        const gradeList = document.getElementById('grade-list');
+        if (gradeList.children.length > 1) {
+            gradeList.removeChild(gradeList.lastChild);
+            calculateAverage();
+        }
+    }
+
+    document.querySelectorAll('.grade-input').forEach(input => {
+        input.addEventListener('input', calculateAverage);
+    });
+</script>
+
+</body>
+</html>
